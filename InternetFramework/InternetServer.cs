@@ -14,19 +14,19 @@ namespace InternetFramework
     /// <summary>
     /// Base class for a generic internet server implementation
     /// </summary>
-    public class InternetServer : IInternetServer, IDisposable
+    public class InternetServer : IInternetServer
     {
         #region Instance Variables
 
         /// <summary>
         /// Socket instance used by this server
         /// </summary>
-        public Socket ServerSocket { get; internal set; } = null;
+        public Socket Socket { get; internal set; } = null;
 
         /// <summary>
         /// List of remote sockets currently connected
         /// </summary>
-        internal List<Socket> Remotes { get; } = new List<Socket>();
+        internal List<INetworkNode> Remotes { get; } = new List<INetworkNode>();
 
         #endregion
 
@@ -52,8 +52,8 @@ namespace InternetFramework
         /// </summary>
         internal void CloseAllRemotes()
         {
-            List<Socket> AllRemotes = new List<Socket>(Remotes);
-            foreach (Socket Remote in AllRemotes)
+            List<INetworkNode> AllRemotes = new List<INetworkNode>(Remotes);
+            foreach (INetworkNode Remote in AllRemotes)
                 this.Disconnect(Remote);
         }
 
@@ -109,52 +109,52 @@ namespace InternetFramework
 
         public event EventHandler<InternetBytesTransferredEventArgs> BytesReceived;
 
-        public async Task SendAsync(Socket Remote, byte[] Message)
+        public async Task SendAsync(INetworkNode Remote, byte[] Message)
         {
             await Task.Run(() => {
                 Send(Remote, Message);
             });
         }
 
-        public void Send(Socket Remote, byte[] Message)
+        public void Send(INetworkNode Remote, byte[] Message)
         {
             this.OnOutgoingMessage(Remote, Message);
-            int bytesSent = Remote.Send(Message);
+            int bytesSent = Remote.Socket.Send(Message);
             if (bytesSent > 0)
                 this.OnBytesSent(Remote, bytesSent);
         }
 
-        public async Task SendAsync(Socket Remote, string Message)
+        public async Task SendAsync(INetworkNode Remote, string Message)
         {
             await SendAsync(Remote, UTF8Encoding.UTF8.GetBytes(Message));
         }
 
-        public void Send(Socket Remote, string Message)
+        public void Send(INetworkNode Remote, string Message)
         {
             SendAsync(Remote, Message).Wait();
         }
 
         public void Send(byte[] Message)
         {
-            foreach (Socket Remote in Remotes)
+            foreach (INetworkNode Remote in Remotes)
                 Send(Remote, Message);
         }
 
         public async Task SendAsync(byte[] Message)
         {
-            foreach (Socket Remote in Remotes)
+            foreach (INetworkNode Remote in Remotes)
                 await SendAsync(Remote, Message);
         }
 
         public void Send(string Message)
         {
-            foreach (Socket Remote in Remotes)
+            foreach (INetworkNode Remote in Remotes)
                 Send(Remote, Message);
         }
 
         public async Task SendAsync(string Message)
         {
-            foreach (Socket Remote in Remotes)
+            foreach (INetworkNode Remote in Remotes)
                 await SendAsync(Remote, Message);
         }
 
@@ -171,11 +171,14 @@ namespace InternetFramework
             {
                 try
                 {
-                    Socket newSocket = ServerSocket.Accept();
+                    Socket newSocket = this.Socket.Accept();
                     if (newSocket != null)
                     {
-                        this.OnNewConnection(newSocket);
-                        _ = ListenForMessagesAsync(newSocket);
+                        IPEndPoint remoteEndpoint = newSocket.RemoteEndPoint as IPEndPoint;
+                        NetworkNode Remote = new NetworkNode(remoteEndpoint.Address, this.Protocol, (ushort)remoteEndpoint.Port, newSocket);
+
+                        this.OnNewConnection(Remote);
+                        _ = ListenForMessagesAsync(Remote);
                     }
                 } 
                 catch (SocketException)
@@ -185,14 +188,14 @@ namespace InternetFramework
             }
         }
 
-        public async Task ListenForMessagesAsync(Socket Remote)
+        public async Task ListenForMessagesAsync(INetworkNode Remote)
         {
             await Task.Run(() => {
                 ListenForMessages(Remote);
             });
         }
 
-        public void ListenForMessages(Socket Remote)
+        public void ListenForMessages(INetworkNode Remote)
         {
             byte[] RecvBuffer = new byte[ReceiveBufferSize];
             int bytesRead = 1;
@@ -200,7 +203,7 @@ namespace InternetFramework
             {
                 try
                 {
-                    bytesRead = Remote.Receive(RecvBuffer, SocketFlags.None);
+                    bytesRead = Remote.Socket.Receive(RecvBuffer, SocketFlags.None);
                     if (bytesRead <= 0)
                     {
                         CloseRemote(Remote);
@@ -224,20 +227,20 @@ namespace InternetFramework
             }
         }
 
-        public async Task DisconnectAsync(Socket Remote)
+        public async Task DisconnectAsync(INetworkNode Remote)
         {
             await Task.Run(() => { 
                 Disconnect(Remote); 
             });
         }
 
-        public void Disconnect(Socket Remote)
+        public void Disconnect(INetworkNode Remote)
         {
             this.OnRemoteDisconnecting(Remote);
 
-            Remote.Shutdown(SocketShutdown.Both);
-            Remote.Disconnect(false);
-            Remote.Close();
+            Remote.Socket.Shutdown(SocketShutdown.Both);
+            Remote.Socket.Disconnect(false);
+            Remote.Socket.Close();
         }
 
         #endregion
@@ -246,25 +249,25 @@ namespace InternetFramework
 
         private void OnServerStarted()
         {
-            ServerStarted?.Invoke(this, new InternetServerEventArgs { Local = ServerSocket });
+            ServerStarted?.Invoke(this, new InternetServerEventArgs { Local = this });
         }
 
         private void OnServerStopping()
         {
-            ServerStopping?.Invoke(this, new InternetServerEventArgs { Local = ServerSocket });
+            ServerStopping?.Invoke(this, new InternetServerEventArgs { Local = this });
         }
 
         private void OnServerStopped()
         {
-            ServerStopped?.Invoke(this, new InternetServerEventArgs { Local = ServerSocket });
+            ServerStopped?.Invoke(this, new InternetServerEventArgs { Local = this });
         }
 
         private void OnServerShuttingDown()
         {
-            ServerShuttingDown?.Invoke(this, new InternetServerEventArgs { Local = ServerSocket });
+            ServerShuttingDown?.Invoke(this, new InternetServerEventArgs { Local = this });
         }
 
-        private void OnIncomingMessage(Socket From, byte[] NewMessage)
+        internal virtual void OnIncomingMessage(INetworkNode From, byte[] NewMessage)
         {
             if ((From == null) || (NewMessage == null) || (NewMessage.Length == 0))
                 return;
@@ -272,13 +275,13 @@ namespace InternetFramework
             IncomingMessage?.Invoke(this, new InternetCommunicationEventArgs
             {
                 Remote = From,
-                Local = ServerSocket,
+                Local = this,
                 Direction = CommunicationDirection.Inbound,
                 Message = NewMessage
             });
         }
 
-        private void OnOutgoingMessage(Socket To, byte[] NewMessage)
+        private void OnOutgoingMessage(INetworkNode To, byte[] NewMessage)
         {
             if ((To == null) || (NewMessage == null) || (NewMessage.Length == 0))
                 return;
@@ -286,13 +289,13 @@ namespace InternetFramework
             OutgoingMessage?.Invoke(this, new InternetCommunicationEventArgs
             {
                 Remote = To,
-                Local = ServerSocket,
+                Local = this,
                 Direction = CommunicationDirection.Outbound,
                 Message = NewMessage
             });
         }
 
-        private void OnBytesSent(Socket To, int NumberOfBytes)
+        private void OnBytesSent(INetworkNode To, int NumberOfBytes)
         {
             if ((To == null) || (NumberOfBytes <= 0))
                 return;
@@ -300,13 +303,13 @@ namespace InternetFramework
             BytesSent?.Invoke(this, new InternetBytesTransferredEventArgs
             {
                 Remote = To,
-                Local = ServerSocket,
+                Local = this,
                 Direction = CommunicationDirection.Outbound,
                 NumBytes = NumberOfBytes
             });
         }
 
-        private void OnBytesReceived(Socket From, int NumberOfBytes)
+        internal virtual void OnBytesReceived(INetworkNode From, int NumberOfBytes)
         {
             if ((From == null) || (NumberOfBytes <= 0))
                 return;
@@ -314,13 +317,13 @@ namespace InternetFramework
             BytesReceived?.Invoke(this, new InternetBytesTransferredEventArgs
             {
                 Remote = From,
-                Local = ServerSocket,
+                Local = this,
                 Direction = CommunicationDirection.Inbound,
                 NumBytes = NumberOfBytes
             });
         }
 
-        private void OnNewConnection(Socket Remote)
+        private void OnNewConnection(INetworkNode Remote)
         {
             if (Remote == null)
                 return;
@@ -330,19 +333,19 @@ namespace InternetFramework
 
             NewConnection?.Invoke(this, new InternetConnectionEventArgs
             {
-                Local = ServerSocket,
+                Local = this,
                 Remote = Remote
             });
         }
 
-        private void OnRemoteDisconnected(Socket Remote)
+        private void OnRemoteDisconnected(INetworkNode Remote)
         {
             if (Remote == null)
                 return;
 
             RemoteDisconnected?.Invoke(this, new InternetConnectionEventArgs
             {
-                Local = ServerSocket,
+                Local = this,
                 Remote = Remote
             });
 
@@ -350,14 +353,14 @@ namespace InternetFramework
                 Remotes.Remove(Remote);
         }
 
-        private void OnRemoteDisconnecting(Socket Remote)
+        private void OnRemoteDisconnecting(INetworkNode Remote)
         {
             if (Remote == null)
                 return;
 
             RemoteDisconnecting?.Invoke(this, new InternetConnectionEventArgs
             {
-                Local = ServerSocket,
+                Local = this,
                 Remote = Remote
             });
         }
@@ -378,7 +381,7 @@ namespace InternetFramework
         /// Derived methods should call the base method at the end of their operation
         /// to invoke the RemoteDisconnected event and perform final cleanup.
         /// </summary>
-        public virtual void CloseRemote(Socket Remote)
+        public virtual void CloseRemote(INetworkNode Remote)
         {
             this.OnRemoteDisconnected(Remote);
         }
@@ -388,7 +391,7 @@ namespace InternetFramework
         /// </summary>
         public virtual void Start()
         {
-            ServerSocket.Bind(new IPEndPoint(Address, Port));
+            this.Socket.Bind(new IPEndPoint(Address, Port));
             IsRunning = true;
         }
 
@@ -412,8 +415,9 @@ namespace InternetFramework
                 CloseAllRemotes();
 
                 OnServerShuttingDown();
-                ServerSocket.Close();
-                ServerSocket = null;
+                if ((this.Socket != null) && (this.Socket.IsBound))
+                    this.Socket.Close();
+                this.Socket = null;
             }
         }
 

@@ -44,13 +44,13 @@ namespace InternetFramework
         public override void CreateServer()
         {
             base.CreateServer();
-            ServerSocket = new Socket(Address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            this.Socket = new Socket(Address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
         }
 
         public override void Start()
         {
             base.Start();
-            ServerSocket.Listen(100);
+            this.Socket.Listen(100);
             ListenForConnections();
         }
 

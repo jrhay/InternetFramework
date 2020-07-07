@@ -11,9 +11,9 @@ namespace InternetFramework.Events
     public class InternetServerEventArgs : EventArgs
     {
         /// <summary>
-        /// Address of local side of connection
+        /// Address of local side of connection. This will always be an instance of the appropriate server class.
         /// </summary>
-        public Socket Local { get; set; }
+        public INetworkNode Local { get; set; }
 
     }
 }

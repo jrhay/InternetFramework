@@ -10,6 +10,6 @@ namespace InternetFramework.Events
         /// <summary>
         /// Address of remote side of connection
         /// </summary>
-        public Socket Remote { get; set; }
+        public INetworkNode Remote { get; set; }
     }
 }

@@ -120,40 +120,40 @@ namespace InternetFramework
         /// <summary>
         /// Start asynchronously listening for messages from a remote connection
         /// </summary>
-        void ListenForMessages(Socket Remote);
+        void ListenForMessages(INetworkNode Remote);
 
         /// <summary>
         /// Start asynchronously listening for messages from a remote connection
         /// </summary>
-        Task ListenForMessagesAsync(Socket Remote);
+        Task ListenForMessagesAsync(INetworkNode Remote);
 
         /// <summary>
         /// Send a message to a remote node
         /// </summary>
         /// <param name="Remote">Address to send message to</param>
         /// <param name="Message">Message to send</param>
-        void Send(Socket Remote, byte[] Message);
+        void Send(INetworkNode Remote, byte[] Message);
 
         /// <summary>
         /// Send a message to a remote node
         /// </summary>
         /// <param name="Remote">Address to send message to</param>
         /// <param name="Message">Message to send</param>
-        Task SendAsync(Socket Remote, byte[] Message);
+        Task SendAsync(INetworkNode Remote, byte[] Message);
 
         /// <summary>
         /// Send a UTF8 message to a remote node
         /// </summary>
         /// <param name="Remote">Address to send message to</param>
         /// <param name="Message">Message to send</param>
-        void Send(Socket Remote, string Message);
+        void Send(INetworkNode Remote, string Message);
 
         /// <summary>
         /// Send a UTF8 message to a remote node
         /// </summary>
         /// <param name="Remote">Address to send message to</param>
         /// <param name="Message">Message to send</param>
-        Task SendAsync(Socket Remote, string Message);
+        Task SendAsync(INetworkNode Remote, string Message);
 
         /// <summary>
         /// Send a message to all remote nodes
@@ -183,12 +183,12 @@ namespace InternetFramework
         /// Forcibly disconnect a remote node, flushing all transmit and receive buffers
         /// </summary>
         /// <param name="Remote">Node to disconnect</param>
-        void Disconnect(Socket Remote);
+        void Disconnect(INetworkNode Remote);
 
         /// <summary>
         /// Forcibly disconnect a remote node, flushing all transmit and receive buffers
         /// </summary>
         /// <param name="Remote">Node to disconnect</param>
-        Task DisconnectAsync(Socket Remote);
+        Task DisconnectAsync(INetworkNode Remote);
     }
 }

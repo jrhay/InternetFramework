@@ -11,7 +11,7 @@ namespace InternetFramework.Events
         /// <summary>
         /// Address of remote side of communication
         /// </summary>
-        public Socket Remote { get; set; }
+        public INetworkNode Remote { get; set; }
 
         /// <summary>
         /// Direction of communication

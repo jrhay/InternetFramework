@@ -80,8 +80,8 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\TelnetFramework\InternetFramework.csproj">
-      <Project>{f7f0457a-e2f6-40bd-9a70-28981a9696a1}</Project>
+    <ProjectReference Include="..\..\InternetFramework\InternetFramework.csproj">
+      <Project>{923e77b0-9d02-4b95-ba95-9467e003fb8d}</Project>
       <Name>InternetFramework</Name>
     </ProjectReference>
   </ItemGroup>
