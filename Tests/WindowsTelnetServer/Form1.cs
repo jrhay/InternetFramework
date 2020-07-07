@@ -16,7 +16,7 @@ namespace WindowsTelnetServer
 {
     public partial class Form1 : Form
     {
-        TCPServer Server;
+        BufferedTCPServer Server;
 
         public Form1()
         {
@@ -118,9 +118,9 @@ namespace WindowsTelnetServer
         private void Server_MessageTransmitting(object sender, InternetFramework.Events.InternetCommunicationEventArgs e)
         {
             if (e.Direction == CommunicationDirection.Outbound)
-                AddLog("To Client " + e.Remote + " => \"" + UTF8Encoding.UTF8.GetString(e.Message) + "\"");
+                AddLog("To Client " + e.Remote + " => \"" + UTF8Encoding.UTF8.GetString(Server.Trim(e.Message)) + "\"");
             else
-                AddLog("From Client " + e.Remote + " => \"" + UTF8Encoding.UTF8.GetString(e.Message) + "\"");
+                AddLog("From Client " + e.Remote + " => \"" + UTF8Encoding.UTF8.GetString(Server.Trim(e.Message)) + "\"");
         }
 
         #endregion
@@ -129,7 +129,7 @@ namespace WindowsTelnetServer
 
         private async void btnStartServer_Click(object sender, EventArgs e)
         {
-            using (Server = new TCPServer((IPAddress)cmbIPAddress.SelectedItem, (ushort)numPort.Value))
+            using (Server = new TelnetServer((IPAddress)cmbIPAddress.SelectedItem, (ushort)numPort.Value))
             {
                 Server.ServerStarted += Server_ServerStarted;
                 Server.ServerStopping += Server_ServerStopping;
@@ -159,7 +159,7 @@ namespace WindowsTelnetServer
 
         private async void btnSendToSelected_Click(object sender, EventArgs e)
         {
-            Socket SelectedClient = GetSelectedClient();
+            INetworkNode SelectedClient = GetSelectedClient();
             if ((Server != null) && (SelectedClient != null))
             {
                 await Server.SendAsync(SelectedClient, UTF8Encoding.UTF8.GetBytes(txtToSend.Text));
@@ -176,19 +176,19 @@ namespace WindowsTelnetServer
 
         private async void btnDisconnectClient_Click(object sender, EventArgs e)
         {
-            Socket SelectedClient = GetSelectedClient();
+            INetworkNode SelectedClient = GetSelectedClient();
             if ((Server != null) && (SelectedClient != null))
             {
                 await Server.DisconnectAsync(SelectedClient);
             }
         }
 
-        private Socket GetSelectedClient()
+        private INetworkNode GetSelectedClient()
         {
-            return (Socket)lstClients.SelectedItem;
+            return (INetworkNode)lstClients.SelectedItem;
         }
 
-        private void AddClient(Socket Client)
+        private void AddClient(INetworkNode Client)
         {
             if (lstClients.InvokeRequired)
             {
@@ -199,7 +199,7 @@ namespace WindowsTelnetServer
                 lstClients.Items.Add(Client);
             }
         }
-        private void RemoveClient(Socket Client)
+        private void RemoveClient(INetworkNode Client)
         {
             if (lstClients.InvokeRequired)
             {

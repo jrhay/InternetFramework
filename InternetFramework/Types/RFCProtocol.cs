@@ -39,6 +39,17 @@ namespace InternetFramework
 
         #endregion
 
+        #region Telnet
+
+        /// <summary>
+        /// Basic Telnet Protocol Definition, RFC 854
+        /// </summary>
+        RFC854,
+
+        Telnet = RFC854,
+
+        #endregion
+
         /// <summary>
         /// Other/undefined protocol
         /// </summary>

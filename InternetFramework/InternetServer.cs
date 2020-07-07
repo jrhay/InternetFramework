@@ -116,7 +116,7 @@ namespace InternetFramework
             });
         }
 
-        public void Send(INetworkNode Remote, byte[] Message)
+        public virtual void Send(INetworkNode Remote, byte[] Message)
         {
             this.OnOutgoingMessage(Remote, Message);
             int bytesSent = Remote.Socket.Send(Message);
