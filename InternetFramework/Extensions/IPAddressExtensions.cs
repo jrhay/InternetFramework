@@ -37,12 +37,30 @@ namespace InternetFramework.Extensions
         }
 
         /// <summary>
-        /// Return the first connected IP address for the local host
+        /// Return the first connected IP address for the local host (may be IPv4 or IPv6)
         /// </summary>
         /// <returns>IP address on first found Internet connection on the local host</returns>
         public static IPAddress LocalIPAddress()
         {
             return IPAddressExtensions.LocalIPAddresses().FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Return the first connected IPv4 address for the local host
+        /// </summary>
+        /// <returns>IPv4 address on first found internet connection for the local host</returns>
+        public static IPAddress LocalIPv4Address()
+        {
+            return IPAddressExtensions.LocalIPAddresses().Where(a => a.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork).FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Return the first connected IPv6 address for the local host
+        /// </summary>
+        /// <returns>IPv6 address on first found internet connection for the local host</returns>
+        public static IPAddress LocalIPv6Address()
+        {
+            return IPAddressExtensions.LocalIPAddresses().Where(a => a.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6).FirstOrDefault();
         }
     }
 }

@@ -13,7 +13,7 @@ namespace InternetFramework
         /// <summary>
         /// CRLF end-of-line control character for Telnet
         /// </summary>
-        static byte[] CRLF = { 0x0D, 0x0A };
+        public static byte[] CRLF = { 0x0D, 0x0A };
 
         #region Lifecycle
 
