@@ -25,23 +25,27 @@ namespace InternetFramework
         uint ReceiveBufferSize { get; set; }
 
         /// <summary>
-        /// Event invoked when a server is started and waiting for remote connections
+        /// Event invoked when a server is started and waiting for remote connections.
+        /// Handlers will be invoked on a threadpool thread
         /// </summary>
         event EventHandler<InternetServerEventArgs> ServerStarted;
 
         /// <summary>
         /// Event invoked when a server is stopping and disconnecting any remote connections.
+        /// Handlers will be invoked on a threadpool thread
         /// </summary>
         event EventHandler<InternetServerEventArgs> ServerStopping;
 
         /// <summary>
         /// Event invoked when a server has stopped and is no longer accepting any connections
+        /// Handlers will be invoked on a threadpool thread
         /// </summary>
         event EventHandler<InternetServerEventArgs> ServerStopped;
 
         /// <summary>
         /// Event invoked when a server is shutting down completely (and will never be restarted).
         /// All event handlers should be removed from the server and all other resources associated with the server cleaned up in this event.
+        /// Handlers will be invoked on a threadpool thread
         /// </summary>
         event EventHandler<InternetServerEventArgs> ServerShuttingDown;
 
@@ -49,6 +53,7 @@ namespace InternetFramework
         /// Event invoked when a new client connects to the server 
         /// Will be called after the socket has been opened
         /// (note that this may not be called for connectionless protocols)
+        /// Handlers will be invoked on a threadpool thread
         /// </summary>
         event EventHandler<InternetConnectionEventArgs> NewConnection;
 
@@ -56,6 +61,7 @@ namespace InternetFramework
         /// Event invoked when a connected client disconnects from the server
         /// Will be called before the socket is closed
         /// (note that this may not be called for connectionless protocols)
+        /// Handlers will be invoked on a threadpool thread
         /// </summary>
         event EventHandler<InternetConnectionEventArgs> RemoteDisconnected;
 
@@ -63,26 +69,31 @@ namespace InternetFramework
         /// Event invoked when a connected client will be disconnected
         /// This is only called when a client connection is being closed from the server side,
         /// and will be called before the socket is shut down.
+        /// Handlers will be invoked on a threadpool thread
         /// </summary>
         event EventHandler<InternetConnectionEventArgs> RemoteDisconnecting;
 
         /// <summary>
         /// Event invoked upon receiving a new message from any remote node
+        /// Handlers will be invoked on a threadpool thread
         /// </summary>
         event EventHandler<InternetCommunicationEventArgs> IncomingMessage;
 
         /// <summary>
         /// Event invoked when starting to send a message to any remote node
+        /// Handlers will be invoked on a threadpool thread
         /// </summary>
         event EventHandler<InternetCommunicationEventArgs> OutgoingMessage;
 
         /// <summary>
         /// Event invoked after sending a message to any remote node
+        /// Handlers will be invoked on a threadpool thread
         /// </summary>
         event EventHandler<InternetBytesTransferredEventArgs> BytesSent;
 
         /// <summary>
         /// Event invoked immediately upon receiving data from any remote node
+        /// Handlers will be invoked on a threadpool thread
         /// </summary>
         event EventHandler<InternetBytesTransferredEventArgs> BytesReceived;
 

@@ -249,77 +249,113 @@ namespace InternetFramework
 
         private void OnServerStarted()
         {
-            ServerStarted?.Invoke(this, new InternetServerEventArgs { Local = this });
+            if (ServerStarted == null)
+                return;
+
+            Task.Run(() =>
+            {
+                ServerStarted.Invoke(this, new InternetServerEventArgs { Local = this });
+            });
         }
 
         private void OnServerStopping()
         {
-            ServerStopping?.Invoke(this, new InternetServerEventArgs { Local = this });
+            if (ServerStopping == null)
+                return;
+
+            Task.Run(() =>
+            {
+                ServerStopping.Invoke(this, new InternetServerEventArgs { Local = this });
+            });
         }
 
         private void OnServerStopped()
         {
-            ServerStopped?.Invoke(this, new InternetServerEventArgs { Local = this });
+            if (ServerStopped == null)
+                return;
+
+            Task.Run(() =>
+            {
+                ServerStopped.Invoke(this, new InternetServerEventArgs { Local = this });
+            });
         }
 
         private void OnServerShuttingDown()
         {
-            ServerShuttingDown?.Invoke(this, new InternetServerEventArgs { Local = this });
+            if (ServerShuttingDown == null)
+                return;
+
+            Task.Run(() =>
+            {
+                ServerShuttingDown.Invoke(this, new InternetServerEventArgs { Local = this });
+            });
         }
 
         internal virtual void OnIncomingMessage(INetworkNode From, byte[] NewMessage)
         {
-            if ((From == null) || (NewMessage == null) || (NewMessage.Length == 0))
+            if ((IncomingMessage == null) || (From == null) || (NewMessage == null) || (NewMessage.Length == 0))
                 return;
 
-            IncomingMessage?.Invoke(this, new InternetCommunicationEventArgs
+            Task.Run(() =>
             {
-                Remote = From,
-                Local = this,
-                Direction = CommunicationDirection.Inbound,
-                Message = NewMessage
+                IncomingMessage.Invoke(this, new InternetCommunicationEventArgs
+                {
+                    Remote = From,
+                    Local = this,
+                    Direction = CommunicationDirection.Inbound,
+                    Message = NewMessage
+                });
             });
         }
 
         private void OnOutgoingMessage(INetworkNode To, byte[] NewMessage)
         {
-            if ((To == null) || (NewMessage == null) || (NewMessage.Length == 0))
+            if ((OutgoingMessage == null) || (To == null) || (NewMessage == null) || (NewMessage.Length == 0))
                 return;
 
-            OutgoingMessage?.Invoke(this, new InternetCommunicationEventArgs
+            Task.Run(() =>
             {
-                Remote = To,
-                Local = this,
-                Direction = CommunicationDirection.Outbound,
-                Message = NewMessage
+                OutgoingMessage.Invoke(this, new InternetCommunicationEventArgs
+                {
+                    Remote = To,
+                    Local = this,
+                    Direction = CommunicationDirection.Outbound,
+                    Message = NewMessage
+                });
             });
         }
 
         private void OnBytesSent(INetworkNode To, int NumberOfBytes)
         {
-            if ((To == null) || (NumberOfBytes <= 0))
+            if ((BytesSent == null) || (To == null) || (NumberOfBytes <= 0))
                 return;
 
-            BytesSent?.Invoke(this, new InternetBytesTransferredEventArgs
+            Task.Run(() =>
             {
-                Remote = To,
-                Local = this,
-                Direction = CommunicationDirection.Outbound,
-                NumBytes = NumberOfBytes
+                BytesSent.Invoke(this, new InternetBytesTransferredEventArgs
+                {
+                    Remote = To,
+                    Local = this,
+                    Direction = CommunicationDirection.Outbound,
+                    NumBytes = NumberOfBytes
+                });
             });
         }
 
         internal virtual void OnBytesReceived(INetworkNode From, int NumberOfBytes)
         {
-            if ((From == null) || (NumberOfBytes <= 0))
+            if ((BytesReceived == null) || (From == null) || (NumberOfBytes <= 0))
                 return;
 
-            BytesReceived?.Invoke(this, new InternetBytesTransferredEventArgs
+            Task.Run(() =>
             {
-                Remote = From,
-                Local = this,
-                Direction = CommunicationDirection.Inbound,
-                NumBytes = NumberOfBytes
+                BytesReceived.Invoke(this, new InternetBytesTransferredEventArgs
+                {
+                    Remote = From,
+                    Local = this,
+                    Direction = CommunicationDirection.Inbound,
+                    NumBytes = NumberOfBytes
+                });
             });
         }
 
@@ -331,10 +367,16 @@ namespace InternetFramework
             if (!Remotes.Contains(Remote))
                 Remotes.Add(Remote);
 
-            NewConnection?.Invoke(this, new InternetConnectionEventArgs
+            if (NewConnection == null)
+                return;
+
+            Task.Run(() =>
             {
-                Local = this,
-                Remote = Remote
+                NewConnection.Invoke(this, new InternetConnectionEventArgs
+                {
+                    Local = this,
+                    Remote = Remote
+                });
             });
         }
 
@@ -343,11 +385,15 @@ namespace InternetFramework
             if (Remote == null)
                 return;
 
-            RemoteDisconnected?.Invoke(this, new InternetConnectionEventArgs
-            {
-                Local = this,
-                Remote = Remote
-            });
+            if (RemoteDisconnected != null)
+                Task.Run(() =>
+                {
+                    RemoteDisconnected.Invoke(this, new InternetConnectionEventArgs
+                    {
+                        Local = this,
+                        Remote = Remote
+                    });
+                });
 
             if (Remotes.Contains(Remote))
                 Remotes.Remove(Remote);
@@ -355,13 +401,16 @@ namespace InternetFramework
 
         private void OnRemoteDisconnecting(INetworkNode Remote)
         {
-            if (Remote == null)
+            if ((RemoteDisconnecting == null) || (Remote == null))
                 return;
 
-            RemoteDisconnecting?.Invoke(this, new InternetConnectionEventArgs
+            Task.Run(() =>
             {
-                Local = this,
-                Remote = Remote
+                RemoteDisconnecting?.Invoke(this, new InternetConnectionEventArgs
+                {
+                    Local = this,
+                    Remote = Remote
+                });
             });
         }
 
