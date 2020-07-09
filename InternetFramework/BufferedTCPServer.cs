@@ -6,6 +6,7 @@ using System.Dynamic;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace InternetFramework
 {
@@ -41,6 +42,29 @@ namespace InternetFramework
             else
                 return Message;
         }
+
+        public void SendLine(INetworkNode Remote, byte[] DataLine)
+        {
+            this.Send(Remote, DataLine);
+            this.Send(Remote, EndOfLine);
+        }
+
+        public async Task SendLineAsync(INetworkNode Remote, byte[] DataLine)
+        {
+            await Task.Run(() => SendLine(Remote, DataLine));
+        }
+
+        public void SendLine(INetworkNode Remote, string DataLine)
+        {
+            this.Send(Remote, DataLine);
+            this.Send(Remote, EndOfLine);
+        }
+
+        public async Task SendLineAsync(INetworkNode Remote, string DataLine)
+        {
+            await Task.Run(() => SendLine(Remote, DataLine));
+        }
+
 
         #endregion
 
