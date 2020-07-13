@@ -359,7 +359,7 @@ namespace InternetFramework
             });
         }
 
-        private void OnNewConnection(INetworkNode Remote)
+        virtual internal void OnNewConnection(INetworkNode Remote)
         {
             if (Remote == null)
                 return;
@@ -380,7 +380,7 @@ namespace InternetFramework
             });
         }
 
-        private void OnRemoteDisconnected(INetworkNode Remote)
+        virtual internal  void OnRemoteDisconnected(INetworkNode Remote)
         {
             if (Remote == null)
                 return;
