@@ -28,26 +28,26 @@ namespace InternetFramework
         /// Event invoked when a server is started and waiting for remote connections.
         /// Handlers will be invoked on a threadpool thread
         /// </summary>
-        event EventHandler<InternetServerEventArgs> ServerStarted;
+        event EventHandler<InternetEventArgs> ServerStarted;
 
         /// <summary>
         /// Event invoked when a server is stopping and disconnecting any remote connections.
         /// Handlers will be invoked on a threadpool thread
         /// </summary>
-        event EventHandler<InternetServerEventArgs> ServerStopping;
+        event EventHandler<InternetEventArgs> ServerStopping;
 
         /// <summary>
         /// Event invoked when a server has stopped and is no longer accepting any connections
         /// Handlers will be invoked on a threadpool thread
         /// </summary>
-        event EventHandler<InternetServerEventArgs> ServerStopped;
+        event EventHandler<InternetEventArgs> ServerStopped;
 
         /// <summary>
         /// Event invoked when a server is shutting down completely (and will never be restarted).
         /// All event handlers should be removed from the server and all other resources associated with the server cleaned up in this event.
         /// Handlers will be invoked on a threadpool thread
         /// </summary>
-        event EventHandler<InternetServerEventArgs> ServerShuttingDown;
+        event EventHandler<InternetEventArgs> ServerShuttingDown;
 
         /// <summary>
         /// Event invoked when a new client connects to the server 

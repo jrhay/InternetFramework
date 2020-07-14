@@ -5,13 +5,11 @@ using System.Text;
 
 namespace InternetFramework.Events
 {
-    public class InternetBytesTransferredEventArgs : InternetServerEventArgs
+    /// <summary>
+    /// Arguments for events generated when data transfer is detected
+    /// </summary>
+    public class InternetBytesTransferredEventArgs : InternetEventArgs
     {
-        /// <summary>
-        /// Address of remote side of communication
-        /// </summary>
-        public INetworkNode Remote { get; set; }
-
         /// <summary>
         /// Direction of communication
         /// </summary>

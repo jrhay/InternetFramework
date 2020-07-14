@@ -87,13 +87,13 @@ namespace InternetFramework
 
         public UInt16 Port { get; private set; }
 
-        public event EventHandler<InternetServerEventArgs> ServerStarted;
+        public event EventHandler<InternetEventArgs> ServerStarted;
 
-        public event EventHandler<InternetServerEventArgs> ServerStopping;
+        public event EventHandler<InternetEventArgs> ServerStopping;
 
-        public event EventHandler<InternetServerEventArgs> ServerStopped;
+        public event EventHandler<InternetEventArgs> ServerStopped;
 
-        public event EventHandler<InternetServerEventArgs> ServerShuttingDown;
+        public event EventHandler<InternetEventArgs> ServerShuttingDown;
 
         public event EventHandler<InternetCommunicationEventArgs> OutgoingMessage;
 
@@ -254,7 +254,7 @@ namespace InternetFramework
 
             Task.Run(() =>
             {
-                ServerStarted.Invoke(this, new InternetServerEventArgs { Local = this });
+                ServerStarted.Invoke(this, new InternetEventArgs { Local = this });
             });
         }
 
@@ -265,7 +265,7 @@ namespace InternetFramework
 
             Task.Run(() =>
             {
-                ServerStopping.Invoke(this, new InternetServerEventArgs { Local = this });
+                ServerStopping.Invoke(this, new InternetEventArgs { Local = this });
             });
         }
 
@@ -276,7 +276,7 @@ namespace InternetFramework
 
             Task.Run(() =>
             {
-                ServerStopped.Invoke(this, new InternetServerEventArgs { Local = this });
+                ServerStopped.Invoke(this, new InternetEventArgs { Local = this });
             });
         }
 
@@ -287,7 +287,7 @@ namespace InternetFramework
 
             Task.Run(() =>
             {
-                ServerShuttingDown.Invoke(this, new InternetServerEventArgs { Local = this });
+                ServerShuttingDown.Invoke(this, new InternetEventArgs { Local = this });
             });
         }
 

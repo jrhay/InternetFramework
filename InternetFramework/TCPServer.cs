@@ -12,12 +12,8 @@ namespace InternetFramework
     /// Server process that accepts TCP connections on a given IP interface and port in the background
     /// and raises events on client actions
     /// </summary>
-    public class TCPServer : InternetServer, ITCPServer
+    public class TCPServer : InternetServer
     {
-        #region ITCPServer Interface
-
-        #endregion
-
         #region Lifecycle
 
         /// <summary>
