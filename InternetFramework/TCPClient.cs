@@ -28,14 +28,14 @@ namespace InternetFramework
 
         public override void CreateClient()
         {
+            this.Socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
             base.CreateClient();
-            this.Socket = new Socket(Address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
         }
 
-        internal override void OnNewConnection(INetworkNode Remote)
+        public override void Connect(string host)
         {
-            base.OnNewConnection(Remote);
-            _ = ListenForMessagesAsync();
+            base.Connect(host);
+            ListenForMessages();
         }
 
         #endregion

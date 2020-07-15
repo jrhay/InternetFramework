@@ -77,8 +77,8 @@ namespace InternetFramework
             if (this.Socket.RemoteEndPoint != null)
             {
                 IPEndPoint remoteEndpoint = this.Socket.RemoteEndPoint as IPEndPoint;
-                NetworkNode Remote = new NetworkNode(remoteEndpoint.Address, this.Protocol, (ushort)remoteEndpoint.Port, this.Socket);
-                this.OnNewConnection(Remote);
+                Server = new NetworkNode(remoteEndpoint.Address, this.Protocol, (ushort)remoteEndpoint.Port, this.Socket);
+                OnNewConnection(Server);
             }
         }
 
@@ -97,13 +97,23 @@ namespace InternetFramework
         /// </summary>
         public virtual void Disconnect()
         {
-            if (IsConnected)
+            try
             {
-                OnRemoteDisconnecting(Server);
-                this.Socket.Shutdown(SocketShutdown.Both);
-                this.Socket.Disconnect(false);
+                if (IsConnected)
+                {
+                    OnRemoteDisconnecting(Server);
+                    if (Server != null)
+                        Server.Socket.Shutdown(SocketShutdown.Both);
+                    this.Socket.Shutdown(SocketShutdown.Both);
 
-                CloseRemote(Server);
+                    if (Server != null)
+                        Server.Socket.Disconnect(false);
+
+                    this.Socket.Close();
+                }
+            } catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
             }
         }
 
@@ -117,10 +127,11 @@ namespace InternetFramework
 
         public virtual void Send(byte[] Message)
         {
-            this.OnOutgoingMessage(Server, Message);
-            int bytesSent = Server.Socket.Send(Message);
+            this.OnOutgoingMessage((Server != null) ? Server : this, Message);
+            Socket outSocket = (Server == null) ? Socket : Server.Socket;
+            int bytesSent = outSocket.Send(Message);
             if (bytesSent > 0)
-                this.OnBytesSent(Server, bytesSent);
+                this.OnBytesSent((Server != null) ? Server : this, bytesSent);
         }
 
         public async Task SendAsync(byte[] Message)
@@ -148,12 +159,11 @@ namespace InternetFramework
         public void ListenForMessages()
         {
             byte[] RecvBuffer = new byte[ReceiveBufferSize];
-            int bytesRead = 1;
-            while (bytesRead > 0)
+            while (IsConnected)
             {
                 try
                 {
-                    bytesRead = Server.Socket.Receive(RecvBuffer, SocketFlags.None);
+                    int bytesRead = Socket.Receive(RecvBuffer, SocketFlags.None);
                     if (bytesRead <= 0)
                     {
                         CloseRemote(Server);
@@ -171,7 +181,6 @@ namespace InternetFramework
                 catch (SocketException)
                 {
                     // If we catch a socket exception, it's probably a fatal error or the socket is disconnected; abort the connection
-                    bytesRead = 0;
                     CloseRemote(Server);
                 }
             }
@@ -207,16 +216,15 @@ namespace InternetFramework
 
         virtual internal void OnNewConnection(INetworkNode Remote)
         {
-            Server = Remote;
             if (NewConnection != null)
-            Task.Run(() =>
-            {
-                NewConnection.Invoke(this, new InternetConnectionEventArgs
+                Task.Run(() =>
                 {
-                    Local = this,
-                    Remote = Remote
+                    NewConnection.Invoke(this, new InternetConnectionEventArgs
+                    {
+                        Local = this,
+                        Remote = Remote
+                    });
                 });
-            });
         }
 
         virtual internal void OnRemoteDisconnecting(INetworkNode Remote)
@@ -249,8 +257,10 @@ namespace InternetFramework
                     });
                 });
 
-            if (Remote.Socket == Server.Socket)
+            if ((Server != null) && (Remote.Socket == Server.Socket))
+            {
                 Server = null;
+            }
         }
 
         private void OnOutgoingMessage(INetworkNode To, byte[] NewMessage)

@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsTelnetServer", "Test
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InternetFramework", "InternetFramework\InternetFramework.csproj", "{923E77B0-9D02-4B95-BA95-9467E003FB8D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsTelnetClient", "Tests\WindowsTelnetClient\WindowsTelnetClient.csproj", "{6599C381-0F61-4F88-B7F6-F01B3B65826C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,12 +25,17 @@ Global
 		{923E77B0-9D02-4B95-BA95-9467E003FB8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{923E77B0-9D02-4B95-BA95-9467E003FB8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{923E77B0-9D02-4B95-BA95-9467E003FB8D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6599C381-0F61-4F88-B7F6-F01B3B65826C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6599C381-0F61-4F88-B7F6-F01B3B65826C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6599C381-0F61-4F88-B7F6-F01B3B65826C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6599C381-0F61-4F88-B7F6-F01B3B65826C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{B5806163-060C-4686-94DB-74786EC587E0} = {F52FCC89-145E-41FE-9856-59531FFC5098}
+		{6599C381-0F61-4F88-B7F6-F01B3B65826C} = {F52FCC89-145E-41FE-9856-59531FFC5098}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {EB53DACF-9585-4C79-BF89-5C74E8E2EAE6}

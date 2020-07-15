@@ -64,12 +64,12 @@ namespace WindowsTelnetServer
 
         #region Server Events
 
-        private void Server_ServerStopped(object sender, InternetFramework.Events.InternetServerEventArgs e)
+        private void Server_ServerStopped(object sender, InternetFramework.Events.InternetEventArgs e)
         {
             AddLog("Server Stopped.");
         }
 
-        private void Server_ServerShuttingDown(object sender, InternetFramework.Events.InternetServerEventArgs e)
+        private void Server_ServerShuttingDown(object sender, InternetFramework.Events.InternetEventArgs e)
         {
             AddLog("Server Shutting Down.");
 
@@ -86,12 +86,12 @@ namespace WindowsTelnetServer
             SetServerRunning(false);
         }
 
-        private void Server_ServerStopping(object sender, InternetFramework.Events.InternetServerEventArgs e)
+        private void Server_ServerStopping(object sender, InternetFramework.Events.InternetEventArgs e)
         {
             AddLog("Server Stopping");
         }
 
-        private void Server_ServerStarted(object sender, InternetFramework.Events.InternetServerEventArgs e)
+        private void Server_ServerStarted(object sender, InternetFramework.Events.InternetEventArgs e)
         {
             AddLog("Server Started.");
             SetServerRunning(true);
