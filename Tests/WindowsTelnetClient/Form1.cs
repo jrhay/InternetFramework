@@ -12,7 +12,7 @@ namespace WindowsTelnetClient
 {
     public partial class Form1 : Form
     {
-        TCPClient Client;
+        BufferedTCPClient Client;
 
         public Form1()
         {
@@ -31,6 +31,8 @@ namespace WindowsTelnetClient
                 grpConsole.Enabled = isConnected;
                 btnSend.Enabled = isConnected;
                 btnConnect.Text = isConnected ? "Disconnect" : "Connect";
+                rdoCRLFEOL.Enabled = !isConnected;
+                rdoPromptEOL.Enabled = !isConnected;
             }
         }
 
@@ -40,9 +42,16 @@ namespace WindowsTelnetClient
                 await Client.DisconnectAsync();
             else
             {
-                using (Client = new TCPClient(23, RFCProtocol.Telnet))
+                using (Client = new BufferedTCPClient(23, RFCProtocol.Telnet))
                 {
                     Client.NewConnection += Client_NewConnection;
+
+                    // Set prompt Telnet server prompt as EOL
+                    if (rdoPromptEOL.Checked)
+                        Client.EndOfLine = UTF8Encoding.UTF8.GetBytes(txtPrompt.Text);
+                    else
+                        Client.EndOfLine = TelnetServer.CRLF;
+
                     Client.RemoteDisconnected += Client_RemoteDisconnected;
                     Client.IncomingMessage += Client_IncomingMessage;
 
@@ -61,7 +70,9 @@ namespace WindowsTelnetClient
             }
             else
             {
-                txtConsole.Text += UTF8Encoding.UTF8.GetString(e.Message);
+                string Message = UTF8Encoding.UTF8.GetString(Client.Trim(e.Message));
+                //string Message = UTF8Encoding.UTF8.GetString(e.Message);
+                txtConsole.Text += "Rcv: \"" + Message.Trim() + "\"";
             }
         }
 
@@ -104,10 +115,16 @@ namespace WindowsTelnetClient
                 if (Client != null)
                 {
                     await Client.SendAsync(txtSend.Text);
+                    await Client.SendAsync(TelnetServer.CRLF);
                     txtSend.Text = null;
                 }
                 btnSend.Enabled = true;
             }
+        }
+
+        private void rdoPromptEOL_CheckedChanged(object sender, EventArgs e)
+        {
+            txtPrompt.Enabled = rdoPromptEOL.Checked;
         }
     }
 }

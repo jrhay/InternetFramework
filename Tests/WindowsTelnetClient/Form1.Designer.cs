@@ -36,6 +36,9 @@
             this.txtSend = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.btnSend = new System.Windows.Forms.Button();
+            this.rdoPromptEOL = new System.Windows.Forms.RadioButton();
+            this.rdoCRLFEOL = new System.Windows.Forms.RadioButton();
+            this.txtPrompt = new System.Windows.Forms.TextBox();
             this.grpConsole.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -116,11 +119,46 @@
             this.btnSend.UseVisualStyleBackColor = true;
             this.btnSend.Click += new System.EventHandler(this.btnSend_Click);
             // 
+            // rdoPromptEOL
+            // 
+            this.rdoPromptEOL.AutoSize = true;
+            this.rdoPromptEOL.Checked = true;
+            this.rdoPromptEOL.Location = new System.Drawing.Point(449, 31);
+            this.rdoPromptEOL.Name = "rdoPromptEOL";
+            this.rdoPromptEOL.Size = new System.Drawing.Size(190, 29);
+            this.rdoPromptEOL.TabIndex = 7;
+            this.rdoPromptEOL.TabStop = true;
+            this.rdoPromptEOL.Text = "Prompt As EOL";
+            this.rdoPromptEOL.UseVisualStyleBackColor = true;
+            this.rdoPromptEOL.CheckedChanged += new System.EventHandler(this.rdoPromptEOL_CheckedChanged);
+            // 
+            // rdoCRLFEOL
+            // 
+            this.rdoCRLFEOL.AutoSize = true;
+            this.rdoCRLFEOL.Location = new System.Drawing.Point(449, 66);
+            this.rdoCRLFEOL.Name = "rdoCRLFEOL";
+            this.rdoCRLFEOL.Size = new System.Drawing.Size(177, 29);
+            this.rdoCRLFEOL.TabIndex = 8;
+            this.rdoCRLFEOL.TabStop = true;
+            this.rdoCRLFEOL.Text = "CRLF As EOL";
+            this.rdoCRLFEOL.UseVisualStyleBackColor = true;
+            // 
+            // txtPrompt
+            // 
+            this.txtPrompt.Location = new System.Drawing.Point(645, 29);
+            this.txtPrompt.Name = "txtPrompt";
+            this.txtPrompt.Size = new System.Drawing.Size(244, 31);
+            this.txtPrompt.TabIndex = 9;
+            this.txtPrompt.Text = "> ";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1544, 1058);
+            this.Controls.Add(this.txtPrompt);
+            this.Controls.Add(this.rdoCRLFEOL);
+            this.Controls.Add(this.rdoPromptEOL);
             this.Controls.Add(this.btnSend);
             this.Controls.Add(this.txtSend);
             this.Controls.Add(this.label2);
@@ -147,6 +185,9 @@
         private System.Windows.Forms.TextBox txtSend;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button btnSend;
+        private System.Windows.Forms.RadioButton rdoPromptEOL;
+        private System.Windows.Forms.RadioButton rdoCRLFEOL;
+        private System.Windows.Forms.TextBox txtPrompt;
     }
 }
 

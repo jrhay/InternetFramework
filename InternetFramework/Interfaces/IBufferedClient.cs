@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 namespace InternetFramework
 {
     /// <summary>
-    /// Interface for a server that buffers sent and received data into packets/lines/etc.
+    /// Interface for a client that buffers sent and received data into packets/lines/etc.
     /// </summary>
-    public interface IBufferedServer
+    public interface IBufferedClient
     {
         /// <summary>
         /// Byte sequence used to denote "End of Data Section"
@@ -23,32 +23,28 @@ namespace InternetFramework
         byte[] Trim(byte[] Message);
 
         /// <summary>
-        /// Send a message followed by the EndOfLine sequence to a remote node
+        /// Send a message followed by the EndOfLine sequence to the connected server
         /// </summary>
-        /// <param name="Remote">Address to send message to</param>
         /// <param name="Message">Message to send</param>
-        void SendLine(INetworkNode Remote, byte[] DataLine);
+        void SendLine(byte[] DataLine);
 
         /// <summary>
-        /// Send a message followed by the EndOfLine sequence to a remote node
+        /// Send a message followed by the EndOfLine sequence to the connected server
         /// </summary>
-        /// <param name="Remote">Address to send message to</param>
         /// <param name="Message">Message to send</param>
-        Task SendLineAsync(INetworkNode Remote, byte[] DataLine);
+        Task SendLineAsync(byte[] DataLine);
 
         /// <summary>
-        /// Send a UTF8 message followed by the EndOfLine sequence to a remote node
+        /// Send a UTF8 message followed by the EndOfLine sequence to the connected server
         /// </summary>
-        /// <param name="Remote">Address to send message to</param>
         /// <param name="Message">Message to send</param>
-        void SendLine(INetworkNode Remote, string DataLine);
+        void SendLine(string DataLine);
 
         /// <summary>
-        /// Send a UTF8 message followed by the EndOfLine sequence to a remote node
+        /// Send a UTF8 message followed by the EndOfLine sequence to the connected server
         /// </summary>
-        /// <param name="Remote">Address to send message to</param>
         /// <param name="Message">Message to send</param>
-        Task SendLineAsync(INetworkNode Remote, string DataLine);
+        Task SendLineAsync(string DataLine);
 
     }
 }
