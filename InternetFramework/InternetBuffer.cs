@@ -40,7 +40,7 @@ namespace InternetFramework
                 EOLIndex--;
             }
 
-            if (EOLIndex < 0)
+            if ((EOLIndex < 0) && (Index >= 0))
             {
                 byte[] NewMessage = new byte[Index + 1];
                 Buffer.BlockCopy(Message, 0, NewMessage, 0, Index + 1);
