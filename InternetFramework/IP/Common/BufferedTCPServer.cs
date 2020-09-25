@@ -40,6 +40,31 @@ namespace InternetFramework
             await Task.Run(() => SendLine(Remote, DataLine));
         }
 
+        public void SendLine(byte[] Message)
+        {
+            foreach (INetworkNode Remote in Remotes)
+                SendLine(Remote, Message);
+        }
+
+        public async Task SendLineAsync(byte[] Message)
+        {
+            foreach (INetworkNode Remote in Remotes)
+                await SendLineAsync(Remote, Message);
+        }
+
+        public void SendLine(string Message)
+        {
+            foreach (INetworkNode Remote in Remotes)
+                SendLine(Remote, Message);
+        }
+
+        public async Task SendLineAsync(string Message)
+        {
+            foreach (INetworkNode Remote in Remotes)
+                await SendLineAsync(Remote, Message);
+        }
+
+
         #region Lifecycle
 
         /// <summary>

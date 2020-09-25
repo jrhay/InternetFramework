@@ -162,7 +162,7 @@ namespace WindowsTelnetServer
             INetworkNode SelectedClient = GetSelectedClient();
             if ((Server != null) && (SelectedClient != null))
             {
-                await Server.SendAsync(SelectedClient, UTF8Encoding.UTF8.GetBytes(txtToSend.Text));
+                await Server.SendLineAsync(SelectedClient, UTF8Encoding.UTF8.GetBytes(txtToSend.Text));
             }
         }
 
@@ -170,7 +170,7 @@ namespace WindowsTelnetServer
         {
             if (Server != null)
             {
-                await Server.SendAsync(txtToSend.Text);
+                await Server.SendLineAsync(txtToSend.Text);
             }
         }
 

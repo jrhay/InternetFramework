@@ -35,15 +35,8 @@ namespace InternetFramework
         /// <summary>
         /// Create a new server instance
         /// </summary>
-        /// <param name="Address">Local IP Address to bind the server to</param>
-        /// <param name="Port">Local port number to listen for connections</param>
-        /// <param name="Protocol">Protocol to be used by this server</param>
-        public InternetServer(IPAddress Address, UInt16 Port, RFCProtocol Protocol)
+        public InternetServer()
         {
-            this.Address = Address;
-            this.Port = Port;
-            this.Protocol = Protocol;
-            CreateServer();
         }
 
 
@@ -174,11 +167,13 @@ namespace InternetFramework
                     Socket newSocket = this.Socket.Accept();
                     if (newSocket != null)
                     {
-                        IPEndPoint remoteEndpoint = newSocket.RemoteEndPoint as IPEndPoint;
-                        NetworkNode Remote = new NetworkNode(remoteEndpoint.Address, this.Protocol, (ushort)remoteEndpoint.Port, newSocket);
+                        if (newSocket.RemoteEndPoint is IPEndPoint remoteEndpoint)
+                        {
+                            NetworkNode Remote = new NetworkNode(remoteEndpoint.Address, this.Protocol, (ushort)remoteEndpoint.Port, newSocket);
 
-                        this.OnNewConnection(Remote);
-                        _ = ListenForMessagesAsync(Remote);
+                            this.OnNewConnection(Remote);
+                            _ = ListenForMessagesAsync(Remote);
+                        }
                     }
                 } 
                 catch (SocketException)
@@ -254,7 +249,7 @@ namespace InternetFramework
 
             Task.Run(() =>
             {
-                ServerStarted.Invoke(this, new InternetEventArgs { Local = this });
+                ServerStarted?.Invoke(this, new InternetEventArgs { Local = this });
             });
         }
 
@@ -265,7 +260,7 @@ namespace InternetFramework
 
             Task.Run(() =>
             {
-                ServerStopping.Invoke(this, new InternetEventArgs { Local = this });
+                ServerStopping?.Invoke(this, new InternetEventArgs { Local = this });
             });
         }
 
@@ -276,7 +271,7 @@ namespace InternetFramework
 
             Task.Run(() =>
             {
-                ServerStopped.Invoke(this, new InternetEventArgs { Local = this });
+                ServerStopped?.Invoke(this, new InternetEventArgs { Local = this });
             });
         }
 
@@ -287,7 +282,7 @@ namespace InternetFramework
 
             Task.Run(() =>
             {
-                ServerShuttingDown.Invoke(this, new InternetEventArgs { Local = this });
+                ServerShuttingDown?.Invoke(this, new InternetEventArgs { Local = this });
             });
         }
 
@@ -298,7 +293,7 @@ namespace InternetFramework
 
             Task.Run(() =>
             {
-                IncomingMessage.Invoke(this, new InternetCommunicationEventArgs
+                IncomingMessage?.Invoke(this, new InternetCommunicationEventArgs
                 {
                     Remote = From,
                     Local = this,
@@ -315,7 +310,7 @@ namespace InternetFramework
 
             Task.Run(() =>
             {
-                OutgoingMessage.Invoke(this, new InternetCommunicationEventArgs
+                OutgoingMessage?.Invoke(this, new InternetCommunicationEventArgs
                 {
                     Remote = To,
                     Local = this,
@@ -332,7 +327,7 @@ namespace InternetFramework
 
             Task.Run(() =>
             {
-                BytesSent.Invoke(this, new InternetBytesTransferredEventArgs
+                BytesSent?.Invoke(this, new InternetBytesTransferredEventArgs
                 {
                     Remote = To,
                     Local = this,
@@ -349,7 +344,7 @@ namespace InternetFramework
 
             Task.Run(() =>
             {
-                BytesReceived.Invoke(this, new InternetBytesTransferredEventArgs
+                BytesReceived?.Invoke(this, new InternetBytesTransferredEventArgs
                 {
                     Remote = From,
                     Local = this,
@@ -372,7 +367,7 @@ namespace InternetFramework
 
             Task.Run(() =>
             {
-                NewConnection.Invoke(this, new InternetConnectionEventArgs
+                NewConnection?.Invoke(this, new InternetConnectionEventArgs
                 {
                     Local = this,
                     Remote = Remote
@@ -388,7 +383,7 @@ namespace InternetFramework
             if (RemoteDisconnected != null)
                 Task.Run(() =>
                 {
-                    RemoteDisconnected.Invoke(this, new InternetConnectionEventArgs
+                    RemoteDisconnected?.Invoke(this, new InternetConnectionEventArgs
                     {
                         Local = this,
                         Remote = Remote
@@ -419,10 +414,17 @@ namespace InternetFramework
         #region Abstract Methods to Override
 
         /// <summary>
-        /// Create a new socket for this server.  Base definition does nothing.
+        /// Creates a new socket for this server and assigns it to the Socket property.  
+        /// This function may be called by dervied constructors.  Derived instances should call the base function before creating the socket.
         /// </summary>
-        public virtual void CreateServer()
+        /// <param name="Address">Local IP Address to bind the server to</param>
+        /// <param name="Port">Local port number to listen for connections</param>
+        /// <param name="Protocol">Protocol to be used by this server</param>
+        public virtual void CreateServer(IPAddress Address, UInt16 Port, RFCProtocol Protocol)
         {
+            this.Address = Address;
+            this.Port = Port;
+            this.Protocol = Protocol;
         }
 
         /// <summary>
@@ -436,12 +438,15 @@ namespace InternetFramework
         }
 
         /// <summary>
-        /// Start the server.  Base definition only binds the ServerSocket to the address.
+        /// Start the server.  Base definition only binds the ServerSocket to the address and port.
         /// </summary>
         public virtual void Start()
         {
-            this.Socket.Bind(new IPEndPoint(Address, Port));
-            IsRunning = true;
+            if (this.Socket != null)
+            {
+                this.Socket.Bind(new IPEndPoint(Address, Port));
+                IsRunning = true;
+            }
         }
 
         /// <summary>

@@ -29,13 +29,8 @@ namespace InternetFramework
         /// <summary>
         /// Create a new client instance
         /// </summary>
-        /// <param name="Port">Local port number to listen for connections</param>
-        /// <param name="Protocol">Protocol to be used by this server</param>
-        public InternetClient(UInt16 Port, RFCProtocol Protocol)
+        public InternetClient()
         {
-            this.Port = Port;
-            this.Protocol = Protocol;
-            CreateClient();
         }
 
         ~InternetClient()
@@ -76,9 +71,11 @@ namespace InternetFramework
             this.Socket.Connect(host, this.Port);
             if (this.Socket.RemoteEndPoint != null)
             {
-                IPEndPoint remoteEndpoint = this.Socket.RemoteEndPoint as IPEndPoint;
-                Server = new NetworkNode(remoteEndpoint.Address, this.Protocol, (ushort)remoteEndpoint.Port, this.Socket);
-                OnNewConnection(Server);
+                if (this.Socket.RemoteEndPoint is IPEndPoint remoteEndpoint)
+                {
+                    Server = new NetworkNode(remoteEndpoint.Address, this.Protocol, (ushort)remoteEndpoint.Port, this.Socket);
+                    OnNewConnection(Server);
+                }
             }
         }
 
@@ -93,8 +90,10 @@ namespace InternetFramework
         }
 
         /// <summary>
-        /// Disconnect from the server, flushing all transmit and receive buffers
+        /// Disconnect from the server, flushing all transmit and receive buffers. 
+        /// Base function must be called if overriden.
         /// </summary>
+        /// <remarks>Base function disconnects from any connected server, but does not clear the internal Server instance</remarks>
         public virtual void Disconnect()
         {
             try
@@ -193,10 +192,15 @@ namespace InternetFramework
         #region Abstract Methods to Override
 
         /// <summary>
-        /// Create a new socket for this client.  Base definition does nothing.
+        /// Creates a new socket for this client and assigns it to the Socket property.
+        /// This function may be called by dervied constructors.  Derived instances should call the base function before creating the socket.
         /// </summary>
-        public virtual void CreateClient()
+        /// <param name="Port">Local port number to listen for connections</param>
+        /// <param name="Protocol">Protocol to be used by this server</param>
+        public virtual void CreateClient(UInt16 port, RFCProtocol protocol)
         {
+            this.Port = port;
+            this.Protocol = protocol;
         }
 
         /// <summary>
@@ -219,7 +223,7 @@ namespace InternetFramework
             if (NewConnection != null)
                 Task.Run(() =>
                 {
-                    NewConnection.Invoke(this, new InternetConnectionEventArgs
+                    NewConnection?.Invoke(this, new InternetConnectionEventArgs
                     {
                         Local = this,
                         Remote = Remote
@@ -247,15 +251,14 @@ namespace InternetFramework
             if (Remote == null)
                 return;
 
-            if (RemoteDisconnected != null)
-                Task.Run(() =>
+            Task.Run(() =>
+            {
+                RemoteDisconnected?.Invoke(this, new InternetConnectionEventArgs
                 {
-                    RemoteDisconnected.Invoke(this, new InternetConnectionEventArgs
-                    {
-                        Local = this,
-                        Remote = Remote
-                    });
+                    Local = this,
+                    Remote = Remote
                 });
+            });
 
             if ((Server != null) && (Remote.Socket == Server.Socket))
             {
@@ -270,7 +273,7 @@ namespace InternetFramework
 
             Task.Run(() =>
             {
-                OutgoingMessage.Invoke(this, new InternetCommunicationEventArgs
+                OutgoingMessage?.Invoke(this, new InternetCommunicationEventArgs
                 {
                     Remote = To,
                     Local = this,
@@ -287,7 +290,7 @@ namespace InternetFramework
 
             Task.Run(() =>
             {
-                BytesSent.Invoke(this, new InternetBytesTransferredEventArgs
+                BytesSent?.Invoke(this, new InternetBytesTransferredEventArgs
                 {
                     Remote = To,
                     Local = this,
@@ -302,15 +305,12 @@ namespace InternetFramework
             if ((IncomingMessage == null) || (From == null) || (NewMessage == null) || (NewMessage.Length == 0))
                 return;
 
-            Task.Run(() =>
+            IncomingMessage?.Invoke(this, new InternetCommunicationEventArgs
             {
-                IncomingMessage.Invoke(this, new InternetCommunicationEventArgs
-                {
-                    Remote = From,
-                    Local = this,
-                    Direction = CommunicationDirection.Inbound,
-                    Message = NewMessage
-                });
+                Remote = From,
+                Local = this,
+                Direction = CommunicationDirection.Inbound,
+                Message = NewMessage
             });
         }
 
@@ -321,7 +321,7 @@ namespace InternetFramework
 
             Task.Run(() =>
             {
-                BytesReceived.Invoke(this, new InternetBytesTransferredEventArgs
+                BytesReceived?.Invoke(this, new InternetBytesTransferredEventArgs
                 {
                     Remote = From,
                     Local = this,
@@ -345,6 +345,8 @@ namespace InternetFramework
                 {
                     // TODO: dispose managed state (managed objects)
                     Disconnect();
+                    if (Server != null)
+                        Server.Dispose();
                 }
 
                 // TODO: free unmanaged resources (unmanaged objects) and override finalizer

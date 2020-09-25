@@ -16,20 +16,21 @@ namespace InternetFramework
         /// <summary>
         /// Create a new TCP client instance
         /// </summary>
-        /// <param name="Port">Local port number to listen for connections</param>
-        /// <param name="Protocol">Protocol to be used by this server</param>
-        public TCPClient(UInt16 Port = (UInt16)DefaultPorts.Telnet, RFCProtocol Protocol = RFCProtocol.TCP) : base(Port, Protocol)
+        /// <param name="port">Local port number to listen for connections</param>
+        /// <param name="protocol">Protocol to be used by this server</param>
+        public TCPClient(UInt16 port = (UInt16)DefaultPorts.Telnet, RFCProtocol protocol = RFCProtocol.TCP) : base()
         {
+            CreateClient(port, protocol);
         }
 
         #endregion
 
         #region Base server overrides
 
-        public override void CreateClient()
+        public override void CreateClient(UInt16 port, RFCProtocol protocol)
         {
+            base.CreateClient(port, protocol);
             this.Socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
-            base.CreateClient();
         }
 
         public override void Connect(string host)
