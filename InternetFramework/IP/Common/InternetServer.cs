@@ -119,12 +119,12 @@ namespace InternetFramework
 
         public async Task SendAsync(INetworkNode Remote, string Message)
         {
-            await SendAsync(Remote, UTF8Encoding.UTF8.GetBytes(Message));
+            await Task.Run(() => { Send(Remote, Message); });
         }
 
-        public void Send(INetworkNode Remote, string Message)
+        public virtual void Send(INetworkNode Remote, string Message)
         {
-            SendAsync(Remote, Message).Wait();
+            Send(Remote, UTF8Encoding.UTF8.GetBytes(Message));
         }
 
         public void Send(byte[] Message)
@@ -232,10 +232,6 @@ namespace InternetFramework
         public void Disconnect(INetworkNode Remote)
         {
             this.OnRemoteDisconnecting(Remote);
-
-            Remote.Socket.Shutdown(SocketShutdown.Both);
-            Remote.Socket.Disconnect(false);
-            Remote.Socket.Close();
         }
 
         #endregion
@@ -394,12 +390,13 @@ namespace InternetFramework
                 Remotes.Remove(Remote);
         }
 
-        private void OnRemoteDisconnecting(INetworkNode Remote)
+        private async void OnRemoteDisconnecting(INetworkNode Remote)
         {
             if ((RemoteDisconnecting == null) || (Remote == null))
                 return;
 
-            Task.Run(() =>
+            // Invoke any waiting disconnect event handlers
+            await Task.Run(() =>
             {
                 RemoteDisconnecting?.Invoke(this, new InternetConnectionEventArgs
                 {
@@ -407,6 +404,20 @@ namespace InternetFramework
                     Remote = Remote
                 });
             });
+
+            // Actually disconnect the remote socket
+            await Task.Run(() => { DoDisconnect(Remote); });
+        }
+
+        /// <summary>
+        /// Shutdown and disconnect a remote network node socket
+        /// </summary>
+        /// <param name="Remote">Remote host to close</param>
+        private void DoDisconnect(INetworkNode Remote)
+        {
+            Remote.Socket.Shutdown(SocketShutdown.Both);
+            Remote.Socket.Disconnect(false);
+            Remote.Socket.Close();
         }
 
         #endregion

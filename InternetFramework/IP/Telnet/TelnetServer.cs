@@ -1,4 +1,5 @@
 ﻿using InternetFramework.Extensions;
+using InternetFramework.IP.Telnet;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,13 +10,8 @@ using System.Threading.Tasks;
 
 namespace InternetFramework
 {
-    public class TelnetServer : BufferedTCPServer
+    public class TelnetServer : LineBasedTCPServer
     {
-        /// <summary>
-        /// CRLF end-of-line control character for Telnet
-        /// </summary>
-        public static byte[] CRLF = { 0x0D, 0x0A };
-
         #region Lifecycle
 
         /// <summary>
@@ -25,7 +21,6 @@ namespace InternetFramework
         /// <param name="Protocol">Protocol to use for the server, default: Telnet (RFC854)</param>
         public TelnetServer(UInt16 Port = (UInt16)DefaultPorts.Telnet, RFCProtocol Protocol = RFCProtocol.Telnet) : base(IPAddressExtensions.LocalIPAddress(), Port, Protocol)
         {
-            EndOfLine = CRLF;
         }
 
         /// <summary>
@@ -36,7 +31,6 @@ namespace InternetFramework
         /// <param name="Protocol">Protocol to use for the server, default: Telnet (RFC854)</param>
         public TelnetServer(IPAddress IPAddress, UInt16 Port = (UInt16)DefaultPorts.Telnet, RFCProtocol Protocol = RFCProtocol.Telnet) : base(IPAddress, Port, Protocol)
         {
-            this.EndOfLine = CRLF;
         }
 
         #endregion
@@ -187,46 +181,4 @@ namespace InternetFramework
 
     }
 
-    /// <summary>
-    /// State of the Telnet "Network Virtual Terminal" for a particular connection
-    /// </summary>
-    internal enum NVTState
-    {
-        Normal,
-
-        AcceptingCommand,
-
-        DoOption,
-
-        DontOption,
-
-        WillOption,
-
-        WontOption
-    }
-
-    internal enum TelnetCommand : byte
-    {
-        IAC         = 255,  // Interpret as Command special key value
-        DONT        = 254,
-        DO          = 253,
-        WONT        = 252,
-        WILL        = 251,
-        SB          = 250,  // Start of option subnegotiation
-        GOAHEAD     = 249,  // "Go Ahead" signal
-        ERASELINE   = 248,  // Erase previous line
-        ERASECHAR   = 247,  // Erase previous character
-        AREYOUTHERE = 246,  // "Are you there?" signal
-        ABORT       = 245,  // "Abort Output" signal
-        INTERRUPT   = 244,  // "Interrupt Process" signal
-        BREAK       = 243,  // Break character 
-        DATAMARK    = 242,  // Data stream of Synch
-        NOP         = 241,  // No operation
-        SE          = 240,  // End of option subnegotiation 
-    }
-
-    public enum TelnetOption : byte
-    {
-        ECHO = 1,  // ECHO - RFC 857
-    }
 }

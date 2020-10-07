@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace InternetFramework
 {
+    /// <summary>
+    /// Base class for a generic internet client implementation
+    /// </summary>
     public class InternetClient : IInternetClient
     {
         #region Instance Variables
@@ -40,7 +43,7 @@ namespace InternetFramework
 
         #endregion
 
-        #region IInternetServer Interface
+        #region IInternetClient Interface
 
         public IPAddress Address { get; internal set; } = null;
 
@@ -138,7 +141,7 @@ namespace InternetFramework
             await Task.Run(() => { Send(Message); });
         }
 
-        public void Send(string Message)
+        public virtual void Send(string Message)
         {
             Send(UTF8Encoding.UTF8.GetBytes(Message));
         }

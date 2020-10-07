@@ -24,7 +24,7 @@ namespace InternetFramework
         uint ReceiveBufferSize { get; set; }
 
         /// <summary>
-        /// Event invoked when a client connections to a new server 
+        /// Event invoked when a client connects to a new server 
         /// Will be called after the socket has been opened
         /// (note that this may not be called for connectionless protocols)
         /// Handlers will be invoked on a threadpool thread

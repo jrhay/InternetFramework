@@ -122,12 +122,10 @@
             // rdoPromptEOL
             // 
             this.rdoPromptEOL.AutoSize = true;
-            this.rdoPromptEOL.Checked = true;
             this.rdoPromptEOL.Location = new System.Drawing.Point(449, 31);
             this.rdoPromptEOL.Name = "rdoPromptEOL";
             this.rdoPromptEOL.Size = new System.Drawing.Size(190, 29);
             this.rdoPromptEOL.TabIndex = 7;
-            this.rdoPromptEOL.TabStop = true;
             this.rdoPromptEOL.Text = "Prompt As EOL";
             this.rdoPromptEOL.UseVisualStyleBackColor = true;
             this.rdoPromptEOL.CheckedChanged += new System.EventHandler(this.rdoPromptEOL_CheckedChanged);
@@ -135,6 +133,7 @@
             // rdoCRLFEOL
             // 
             this.rdoCRLFEOL.AutoSize = true;
+            this.rdoCRLFEOL.Checked = true;
             this.rdoCRLFEOL.Location = new System.Drawing.Point(449, 66);
             this.rdoCRLFEOL.Name = "rdoCRLFEOL";
             this.rdoCRLFEOL.Size = new System.Drawing.Size(177, 29);

@@ -2,14 +2,15 @@
 using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace InternetFramework
 {
     /// <summary>
     /// Client that connects to a TCP server on a given IP interface and port in the background
-    /// and raises events on client actions
+    /// and raises events on server actions
     /// </summary>
-    public class TCPClient : InternetClient
+    public class TCPClient<P> : BufferedInternetClient<P> where P:IInternetPacket, new()
     {
         #region Lifecycle
 
@@ -18,9 +19,9 @@ namespace InternetFramework
         /// </summary>
         /// <param name="port">Local port number to listen for connections</param>
         /// <param name="protocol">Protocol to be used by this server</param>
-        public TCPClient(UInt16 port = (UInt16)DefaultPorts.Telnet, RFCProtocol protocol = RFCProtocol.TCP) : base()
+        public TCPClient(UInt16 port = (UInt16)DefaultPorts.Telnet, RFCProtocol protocol = RFCProtocol.TCP) :
+            base(new P(), port, protocol)
         {
-            CreateClient(port, protocol);
         }
 
         #endregion

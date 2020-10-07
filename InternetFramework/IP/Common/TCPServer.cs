@@ -12,7 +12,7 @@ namespace InternetFramework
     /// Server process that accepts TCP connections on a given IP interface and port in the background
     /// and raises events on client actions
     /// </summary>
-    public class TCPServer : InternetServer
+    public class TCPServer<P> : BufferedInternetServer<P> where P:IInternetPacket, new()
     {
         #region Lifecycle
 
@@ -21,9 +21,8 @@ namespace InternetFramework
         /// </summary>
         /// <param name="port">Port to use for server, default: 23 (Telnet)</param>
         /// <param name="protocol">Protocol to use for the server, default: TCP (RFC793)</param>
-        public TCPServer(UInt16 port = (UInt16)DefaultPorts.Telnet, RFCProtocol protocol = RFCProtocol.TCP) : base()
+        public TCPServer(UInt16 port = (UInt16)DefaultPorts.Telnet, RFCProtocol protocol = RFCProtocol.TCP) : base(new P(), port, protocol)
         {
-            CreateServer(IPAddressExtensions.LocalIPAddress(), port, protocol);
         }
 
         /// <summary>
@@ -32,9 +31,8 @@ namespace InternetFramework
         /// <param name="address">IP Address to bind server to, must be an IP address on a currently-connected interface</param>
         /// <param name="port">Port to use for server, default: 23 (Telnet)</param>
         /// <param name="protocol">Protocol to use for the server, default: TCP (RFC793)</param>
-        public TCPServer(IPAddress address, UInt16 port = (UInt16)DefaultPorts.Telnet, RFCProtocol protocol = RFCProtocol.TCP) : base()
+        public TCPServer(IPAddress address, UInt16 port = (UInt16)DefaultPorts.Telnet, RFCProtocol protocol = RFCProtocol.TCP) : base(new P(), address, port, protocol)
         {
-            CreateServer(address, port, protocol);
         }
 
         #endregion

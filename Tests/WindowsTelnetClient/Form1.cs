@@ -12,7 +12,7 @@ namespace WindowsTelnetClient
 {
     public partial class Form1 : Form
     {
-        BufferedTCPClient Client;
+        TelnetClient Client;
 
         public Form1()
         {
@@ -31,8 +31,6 @@ namespace WindowsTelnetClient
                 grpConsole.Enabled = isConnected;
                 btnSend.Enabled = isConnected;
                 btnConnect.Text = isConnected ? "Disconnect" : "Connect";
-                rdoCRLFEOL.Enabled = !isConnected;
-                rdoPromptEOL.Enabled = !isConnected;
             }
         }
 
@@ -42,15 +40,9 @@ namespace WindowsTelnetClient
                 await Client.DisconnectAsync();
             else
             {
-                using (Client = new BufferedTCPClient(23, RFCProtocol.Telnet))
+                using (Client = new TelnetClient(23, RFCProtocol.Telnet))
                 {
                     Client.NewConnection += Client_NewConnection;
-
-                    // Set prompt Telnet server prompt as EOL
-                    if (rdoPromptEOL.Checked)
-                        Client.EndOfLine = UTF8Encoding.UTF8.GetBytes(txtPrompt.Text);
-                    else
-                        Client.EndOfLine = TelnetServer.CRLF;
 
                     Client.RemoteDisconnected += Client_RemoteDisconnected;
                     Client.IncomingMessage += Client_IncomingMessage;
@@ -70,9 +62,8 @@ namespace WindowsTelnetClient
             }
             else
             {
-                string Message = UTF8Encoding.UTF8.GetString(Client.Trim(e.Message));
-                //string Message = UTF8Encoding.UTF8.GetString(e.Message);
-                txtConsole.Text += "Rcv: \"" + Message.Trim() + "\"";
+                string Message = Client.PacketType.MessageToString(Client.PacketType.Trim(e.Message));
+                txtConsole.Text += "Rcv: \"" + Message + "\"";
             }
         }
 
@@ -114,8 +105,10 @@ namespace WindowsTelnetClient
                 btnSend.Enabled = false;
                 if (Client != null)
                 {
-                    await Client.SendAsync(txtSend.Text);
-                    await Client.SendAsync(TelnetServer.CRLF);
+                    Client.PacketType.Prompt = txtPrompt.Text;
+                    Client.PacketType.UsePrompt = rdoPromptEOL.Checked;
+
+                    await Client.SendLineAsync(txtSend.Text);
                     txtSend.Text = null;
                 }
                 btnSend.Enabled = true;

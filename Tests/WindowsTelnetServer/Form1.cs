@@ -16,7 +16,7 @@ namespace WindowsTelnetServer
 {
     public partial class Form1 : Form
     {
-        BufferedTCPServer Server;
+        TelnetServer Server;
 
         public Form1()
         {
@@ -105,22 +105,22 @@ namespace WindowsTelnetServer
 
         private void Server_RemoteDisconnecting(object sender, InternetFramework.Events.InternetConnectionEventArgs e)
         {
-            Server.Send(e.Remote, "Goodbye!\r\n");
+            Server.SendLine(e.Remote, "Goodbye!");
         }
 
         private void Server_NewConnection(object sender, InternetFramework.Events.InternetConnectionEventArgs e)
         {
             AddLog("Client " + e.Remote + " Connected");
             AddClient(e.Remote);
-            Server.Send(e.Remote, UTF8Encoding.UTF8.GetBytes("Welcome to Windows Telnet Server, a test program for the .NET Standard 2.0 InternetFramework\r\n"));
+            Server.SendLine(e.Remote, "Welcome to Windows Telnet Server, a test program for the .NET Standard 2.0 InternetFramework");
         }
 
         private void Server_MessageTransmitting(object sender, InternetFramework.Events.InternetCommunicationEventArgs e)
         {
             if (e.Direction == CommunicationDirection.Outbound)
-                AddLog("To Client " + e.Remote + " => \"" + UTF8Encoding.UTF8.GetString(Server.Trim(e.Message)) + "\"");
+                AddLog("To Client " + e.Remote + " => \"" + Server.PacketType.MessageToString(e.Message) + "\"");
             else
-                AddLog("From Client " + e.Remote + " => \"" + UTF8Encoding.UTF8.GetString(Server.Trim(e.Message)) + "\"");
+                AddLog("From Client " + e.Remote + " => \"" + Server.PacketType.MessageToString(e.Message) + "\"");
         }
 
         #endregion
