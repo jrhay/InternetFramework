@@ -102,6 +102,8 @@ namespace InternetFramework
 
         public event EventHandler<InternetBytesTransferredEventArgs> BytesReceived;
 
+        public event EventHandler<InternetSocketExceptionEventArgs> SocketExceptionOccured;
+
         public async Task SendAsync(INetworkNode Remote, byte[] Message)
         {
             await Task.Run(() => {

@@ -51,8 +51,7 @@ namespace InternetFramework
 
         public void SendLine(string DataLine)
         {
-            this.Send(DataLine);
-            this.Send(PacketType.EndOfLine);
+            this.SendLine(Encoding.UTF8.GetBytes(DataLine));
         }
 
         public async Task SendLineAsync(string DataLine)

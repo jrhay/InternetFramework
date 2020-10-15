@@ -69,6 +69,11 @@ namespace InternetFramework
         /// </summary>
         event EventHandler<InternetBytesTransferredEventArgs> BytesReceived;
 
+        /// <summary>
+        /// Event invoked when a system socket exception is captured. 
+        /// If no handler is assigned, the exception will be rethrown.
+        /// </summary>
+        event EventHandler<InternetSocketExceptionEventArgs> SocketExceptionOccured;
 
         /// <summary>
         /// Attempt to connect to a server at the specified address

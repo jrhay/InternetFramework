@@ -63,6 +63,7 @@ namespace InternetFramework
         public event EventHandler<InternetCommunicationEventArgs> OutgoingMessage;
         public event EventHandler<InternetBytesTransferredEventArgs> BytesSent;
         public event EventHandler<InternetBytesTransferredEventArgs> BytesReceived;
+        public event EventHandler<InternetSocketExceptionEventArgs> SocketExceptionOccured;
 
         /// <summary>
         /// Attempt to connect to a server at the specified address.
@@ -71,14 +72,24 @@ namespace InternetFramework
         /// <param name="host">DNS hostname to connect to or IPv4/IPv6 address string</param>
         public virtual void Connect(string host)
         {
-            this.Socket.Connect(host, this.Port);
-            if (this.Socket.RemoteEndPoint != null)
+            try
             {
-                if (this.Socket.RemoteEndPoint is IPEndPoint remoteEndpoint)
+                this.Socket.Connect(host, this.Port);
+                if (this.Socket.RemoteEndPoint != null)
                 {
-                    Server = new NetworkNode(remoteEndpoint.Address, this.Protocol, (ushort)remoteEndpoint.Port, this.Socket);
-                    OnNewConnection(Server);
+                    if (this.Socket.RemoteEndPoint is IPEndPoint remoteEndpoint)
+                    {
+                        Server = new NetworkNode(remoteEndpoint.Address, this.Protocol, (ushort)remoteEndpoint.Port, this.Socket);
+                        OnNewConnection(Server);
+                    }
                 }
+            } 
+            catch (SocketException se)
+            {
+                if (SocketExceptionOccured != null)
+                    OnSocketException(Server, se);
+                else
+                    throw; // Rethrow, preserving stack details
             }
         }
 
@@ -113,9 +124,13 @@ namespace InternetFramework
 
                     this.Socket.Close();
                 }
-            } catch (Exception ex)
+            }
+            catch (SocketException se)
             {
-                Console.WriteLine(ex.Message);
+                if (SocketExceptionOccured != null)
+                    OnSocketException(Server, se);
+                else
+                    throw; // Rethrow, preserving stack details
             }
         }
 
@@ -129,11 +144,21 @@ namespace InternetFramework
 
         public virtual void Send(byte[] Message)
         {
-            this.OnOutgoingMessage((Server != null) ? Server : this, Message);
-            Socket outSocket = (Server == null) ? Socket : Server.Socket;
-            int bytesSent = outSocket.Send(Message);
-            if (bytesSent > 0)
-                this.OnBytesSent((Server != null) ? Server : this, bytesSent);
+            try
+            {
+                this.OnOutgoingMessage((Server != null) ? Server : this, Message);
+                Socket outSocket = (Server == null) ? Socket : Server.Socket;
+                int bytesSent = outSocket.Send(Message);
+                if (bytesSent > 0)
+                    this.OnBytesSent((Server != null) ? Server : this, bytesSent);
+            }
+            catch (SocketException se)
+            {
+                if (SocketExceptionOccured != null)
+                    OnSocketException(Server, se);
+                else
+                    throw; // Rethrow, preserving stack details
+            }
         }
 
         public async Task SendAsync(byte[] Message)
@@ -180,10 +205,15 @@ namespace InternetFramework
                         this.OnIncomingMessage(Server, Data);
                     }
                 }
-                catch (SocketException)
+                catch (SocketException se)
                 {
-                    // If we catch a socket exception, it's probably a fatal error or the socket is disconnected; abort the connection
+                    // If we catch a socket exception, it's probably a fatal error or the socket is disconnected; abort the connection 
                     CloseRemote(Server);
+
+                    if (SocketExceptionOccured != null)
+                        OnSocketException(Server, se);
+                    else
+                        throw; // Rethrow, preserving stack details
                 }
             }
         }
@@ -220,6 +250,21 @@ namespace InternetFramework
         #endregion
 
         #region Event Handling
+
+        virtual internal void OnSocketException(INetworkNode Remote, SocketException se)
+        {
+            if (SocketExceptionOccured != null)
+                Task.Run(() =>
+                {
+                    SocketExceptionOccured?.Invoke(this, new InternetSocketExceptionEventArgs
+                    {
+                        Local = this,
+                        Remote = Remote,
+                        SocketException = se
+                    }
+                    );
+                });
+        }
 
         virtual internal void OnNewConnection(INetworkNode Remote)
         {
