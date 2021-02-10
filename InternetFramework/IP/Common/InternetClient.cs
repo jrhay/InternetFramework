@@ -244,6 +244,13 @@ namespace InternetFramework
         public virtual void CloseRemote(INetworkNode Remote)
         {
             this.OnRemoteDisconnected(Remote);
+            try
+            {
+                Socket.Disconnect(false);
+                Socket.Dispose();
+                Socket = null;
+            }
+            catch { }
         }
 
 
