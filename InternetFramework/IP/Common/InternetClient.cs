@@ -115,14 +115,15 @@ namespace InternetFramework
                 if (IsConnected)
                 {
                     OnRemoteDisconnecting(Server);
-                    if (Server != null)
-                        Server.Socket.Shutdown(SocketShutdown.Both);
                     this.Socket.Shutdown(SocketShutdown.Both);
+                    this.Socket.Close();
+                    this.Socket.Dispose();
 
                     if (Server != null)
-                        Server.Socket.Disconnect(false);
+                        Server.Socket.Dispose();
 
-                    this.Socket.Close();
+                    this.Socket = null;
+                    Server = null;
                 }
             }
             catch (SocketException se)
@@ -148,9 +149,12 @@ namespace InternetFramework
             {
                 this.OnOutgoingMessage((Server != null) ? Server : this, Message);
                 Socket outSocket = (Server == null) ? Socket : Server.Socket;
-                int bytesSent = outSocket.Send(Message);
-                if (bytesSent > 0)
-                    this.OnBytesSent((Server != null) ? Server : this, bytesSent);
+                if (outSocket != null)
+                {
+                    int bytesSent = outSocket.Send(Message);
+                    if (bytesSent > 0)
+                        this.OnBytesSent((Server != null) ? Server : this, bytesSent);
+                }
             }
             catch (SocketException se)
             {
@@ -246,9 +250,12 @@ namespace InternetFramework
             this.OnRemoteDisconnected(Remote);
             try
             {
-                Socket.Disconnect(false);
-                Socket.Dispose();
-                Socket = null;
+                if (Socket != null)
+                {
+                    Socket.Disconnect(false);
+                    Socket.Dispose();
+                    Socket = null;
+                }
             }
             catch { }
         }

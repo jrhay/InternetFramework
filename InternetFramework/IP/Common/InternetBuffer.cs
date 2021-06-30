@@ -50,20 +50,20 @@ namespace InternetFramework
             {
                 foreach (int LineIndex in LinePositions)
                 {
-                    int MessageLength = LineIndex;
+                    int MessageLength = LineIndex - MessageStart;
                     byte[] Message = new byte[MessageLength];
 
                     Buffer.BlockCopy(IncomingMessage, MessageStart, Message, 0, MessageLength);
                     OnMessageReceived(From, Message);
 
-                    MessageStart += MessageLength;
+                    MessageStart += MessageLength - 1;
                 }
 
                 // Preserve any remaining incoming message we may have
-                if ((MessageStart > 0) && (MessageStart < IncomingMessage.Length-1))
+                if ((MessageStart > 0) && (MessageStart < IncomingMessage.Length - 1))
                 {
-                    byte[] Remaining = new byte[IncomingMessage.Length - MessageStart];
-                    Buffer.BlockCopy(IncomingMessage, MessageStart, Remaining, 0, Remaining.Length);
+                    byte[] Remaining = new byte[IncomingMessage.Length - MessageStart - 1];
+                    Buffer.BlockCopy(IncomingMessage, MessageStart+1, Remaining, 0, Remaining.Length);
                     IncomingMessages[From] = new List<byte>(Remaining);
                 }
                 else
