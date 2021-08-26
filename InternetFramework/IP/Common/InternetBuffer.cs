@@ -45,7 +45,7 @@ namespace InternetFramework
             // If buffered message has an end-of-line terminator, send the line(s) to any listeners
             byte[] IncomingMessage = IncomingMessages[From].ToArray();
             int MessageStart = 0;
-            IEnumerable<int> LinePositions = DataType.FindPackets(IncomingMessage);
+            IEnumerable<int> LinePositions = DataType.FindPackets(IncomingMessage, (uint)NewMessage.Length);
             if ((LinePositions != null) && (LinePositions.Count() > 0))
             {
                 foreach (int LineIndex in LinePositions)

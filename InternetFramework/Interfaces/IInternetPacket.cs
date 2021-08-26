@@ -14,7 +14,8 @@ namespace InternetFramework
         /// and if so return the 0-based index into the byte array of the end of each packet
         /// </summary>
         /// <param name="bytes">Sequence of bytes to check for packets</param>
+        /// <param name="newBytesLength">Number of new bytes that have been appended to this buffer since the last check, if known</param>
         /// <returns>0-based index of end of each complete packet found</returns>
-        IEnumerable<int> FindPackets(byte[] bytes);
+        IEnumerable<int> FindPackets(byte[] bytes, uint newBytesLength = 0);
     }
 }

@@ -46,9 +46,10 @@ namespace InternetFramework
         /// 0-based index into the byte array of the end of line
         /// </summary>
         /// <param name="bytes">Sequence of bytes to check for lines</param>
+        /// <param name="newBytesLength">Number of new bytes that have been appended to this buffer since the last check, if known</param>
         /// <returns>0-based index of end of each complete line found</returns>
-        public IEnumerable<int> FindPackets(byte[] bytes)
-        {
+        public IEnumerable<int> FindPackets(byte[] bytes, uint newBytesLength = 0)
+        { 
             byte[] Delim = (UsePrompt && PromptSequence != null) ? PromptSequence : EndOfLine;
             for (int i = 0; i < bytes.Length; i++)
             {
