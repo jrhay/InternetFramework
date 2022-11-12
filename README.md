@@ -19,5 +19,7 @@ The idea of this lirbary is to carefully impelment the core RFCs, implementing a
             }
             
 ### Static Application Security Testing (SAST)
-![PVS-Studio Logo](https://www.viva64.com/media/img/logo.png)
-Code in the primary repo for [InternetFramework](https://github.com/jrhay/InternetFramework.git) is analyzed for typos, bugs, and security errors per the [Common Weakness Enumeration](https://cwe.mitre.org/), [SEI CERT](https://wiki.sei.cmu.edu/confluence/display/seccode/SEI+CERT+Coding+Standards), and [MISRA](https://www.misra.org.uk/) coding standards using the [PVS-Studio](https://www.viva64.com/en/pvs-studio/) SAST tool before being pushed to github.
+
+Before being pushed to github, code in the primary repo for [InternetFramework](https://github.com/jrhay/InternetFramework.git) is analyzed for typos, bugs, and security errors per the [Common Weakness Enumeration](https://cwe.mitre.org/), [SEI CERT](https://wiki.sei.cmu.edu/confluence/display/seccode/SEI+CERT+Coding+Standards), and [MISRA](https://www.misra.org.uk/) coding standards using:
+
+[PVS-Studio](https://pvs-studio.com/en/pvs-studio/?utm_source=github&utm_medium=organic&utm_campaign=open_source) - static analyzer for C, C++, C#, and Java code.
